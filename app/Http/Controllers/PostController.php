@@ -110,6 +110,32 @@ class PostController extends Controller
     public function update(Request $request, Post $post)
     {
         //
+
+
+        # SELECT * FROM posts WHERE id = $id;
+
+        $post->description = $request->description;
+
+        # If there is a new image...
+        if($request->image) {
+            $post->image =  'data:image/'.$request->image->extension().';base64,'.base64_encode(file_get_contents($request->image));
+        }
+
+        $post->save();
+
+        # 3. Delete all records from category_post related to this post
+        $post->categoryPost()->delete();
+        # DELETE FROM category_post WHERE post_id = $post_id;
+        # Use the relationship Post::categoryPost() to select the records related to a post
+
+        # 4. Save the categories to the category_post table
+        foreach($request->category as $category_id) {
+            $category_post[] = ['category_id' => $category_id];
+        }
+        $post->categoryPost()->createMany($category_post);
+
+        # 5. Redirect to Show Post page (to confirm the update)
+        return redirect()->route('post.show', $post->id);
     }
 
     /**
@@ -118,5 +144,10 @@ class PostController extends Controller
     public function destroy(Post $post)
     {
         //
+        $post->delete();
+        # ->forceDelete(): Permanently deletes the post, bypassing soft deletion.
+
+
+        return redirect()->route('index');
     }
 }

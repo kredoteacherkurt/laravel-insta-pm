@@ -3,7 +3,7 @@
 @section('title', 'Edit Post')
 
 @section('content')
-    <form action="{{ route('post.update', $post->id) }}" method="post" enctype="multipart/form-data">
+    <form action="{{ route('post.update', $post) }}" method="post" enctype="multipart/form-data">
         @csrf
         @method('PATCH')
 
