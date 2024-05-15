@@ -13,9 +13,11 @@ class PostController extends Controller
      * Display a listing of the resource.
      */
     private $post;
-    public function __construct(Post $post)
+    private $category;
+    public function __construct(Post $post, Category $category)
     {
         $this->post = $post;
+        $this->category = $category;
     }
     public function index()
     {
@@ -43,19 +45,19 @@ class PostController extends Controller
 
         $this->post->user_id = Auth::id();
         $this->post->description = $request->description;
-        $this->post->image =  'data:image/'.$request->image->extension().';base64,'.base64_encode(file_get_contents($request->image));
+        $this->post->image =  'data:image/' . $request->image->extension() . ';base64,' . base64_encode(file_get_contents($request->image));
         $this->post->save();
 
         // return $this->post;
 
-        foreach($request->category as $category_id){
+        foreach ($request->category as $category_id) {
             $category_post[] = ["category_id" => $category_id];
         }
 
-       return  $this->post->categoryPost()->createMany($category_post);
+        return  $this->post->categoryPost()->createMany($category_post);
 
-       return redirect()->route('index');
-    //    somebody that i used to know
+        return redirect()->route('index');
+        //    somebody that i used to know
 
 
 
@@ -67,6 +69,10 @@ class PostController extends Controller
     public function show(Post $post)
     {
         //
+
+
+        return view('users.posts.show')
+            ->with('post', $post);
     }
 
     /**
@@ -75,6 +81,27 @@ class PostController extends Controller
     public function edit(Post $post)
     {
         //
+
+        # SELECT * FROM posts WHERE id = $id;
+
+        # If the Auth user is NOT the owner of the post, redirect to homepage
+        if (Auth::user()->id != $post->user->id) {
+            return redirect()->route('index');
+        }
+
+        $all_categories = $this->category->all();
+        # SELECT * FROM categories;
+
+        # Get all the category IDs of this POST. Save in an array
+        $selected_categories = [];
+        foreach ($post->categoryPost as $category_post) {
+            $selected_categories[] = $category_post->category_id;
+        }
+
+        return view('users.posts.edit')
+            ->with('post', $post)
+            ->with('all_categories', $all_categories)
+            ->with('selected_categories', $selected_categories);
     }
 
     /**
