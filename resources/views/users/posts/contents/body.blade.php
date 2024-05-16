@@ -59,6 +59,6 @@
             Y: Four-digit year (e.g., 2022, 2023, 2024).
         --}}
     </p>
-    <!-- Include comments here -->
+    @include('users.posts.contents.comments')
 
 </div>
