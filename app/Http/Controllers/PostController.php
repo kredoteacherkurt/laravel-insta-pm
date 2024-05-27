@@ -54,7 +54,7 @@ class PostController extends Controller
             $category_post[] = ["category_id" => $category_id];
         }
 
-        return  $this->post->categoryPost()->createMany($category_post);
+          $this->post->categoryPost()->createMany($category_post);
 
         return redirect()->route('index');
         //    somebody that i used to know
